@@ -1,0 +1,6 @@
+[tool.ruff.lint]
+select = ["F"]
+ignore = ["F403", "F405"]
+
+[tool.ruff.format]
+exclude = ["./RandomContinuousFutureUniverse/future_symbols.py"]

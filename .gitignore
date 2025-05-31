@@ -1,0 +1,4 @@
+.QuantConnect
+.vscode
+data/
+lean.json

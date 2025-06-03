@@ -5,3 +5,4 @@ lean.json
 .DS_Store
 config.json
 qc.code-workspace
+.idea

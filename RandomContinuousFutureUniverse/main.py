@@ -1,8 +1,8 @@
 from AlgorithmImports import *
-from Selection.FutureUniverseSelectionModel import FutureUniverseSelectionModel
-from datetime import timedelta, datetime
-import random
 from future_symbols import future_symbols
+from UniverseSelection import (
+    RandomContinuousFutureUniverseSelectionModel,
+)
 
 
 class RandomContinuousFutureUniverseAlgorithm(QCAlgorithm):
@@ -19,7 +19,9 @@ class RandomContinuousFutureUniverseAlgorithm(QCAlgorithm):
             DataNormalizationMode.BACKWARDS_RATIO
         )
         self.add_universe_selection(
-            RandomContinuousFutureUniverseSelectionModel(period=1, sample_size=5)
+            RandomContinuousFutureUniverseSelectionModel(
+                period=1, sample_size=5, future_symbols=future_symbols()
+            )
         )
 
     def on_data(self, data: Slice) -> None:
@@ -28,15 +30,3 @@ class RandomContinuousFutureUniverseAlgorithm(QCAlgorithm):
         for kvp in self.active_securities:
             if kvp.key.is_canonical():
                 self.debug(f"Symbol: {kvp.key} Mapped: {kvp.value.mapped}")
-
-
-class RandomContinuousFutureUniverseSelectionModel(FutureUniverseSelectionModel):
-    def __init__(self, period=1, sample_size=1) -> None:
-        self.sample_size = sample_size
-        super().__init__(timedelta(period), self.select_continuous_future_symbols)
-
-    def select_continuous_future_symbols(self, utc_time: datetime) -> list[Symbol]:
-        return random.sample(future_symbols(), self.sample_size)
-
-    def filter(self, filter: FutureFilterUniverse) -> FutureFilterUniverse:
-        return filter.none()

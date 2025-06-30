@@ -1,6 +1,6 @@
 from AlgorithmImports import *
 from future_symbols import future_symbols
-from UniverseSelection import (
+from CustomUniverseSelectionModel import (
     RandomContinuousFutureUniverseSelectionModel,
 )
 

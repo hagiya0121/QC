@@ -1,4 +1,5 @@
 from AlgorithmImports import *
+from Logger import Logger
 from future_symbols import future_symbols
 from CustomUniverseSelectionModel import (
     RandomContinuousFutureUniverseSelectionModel,
@@ -8,10 +9,12 @@ from CustomUniverseSelectionModel import (
 class RandomContinuousFutureUniverseAlgorithm(QCAlgorithm):
     def initialize(self) -> None:
         self.set_start_date(2022, 1, 1)
-        self.set_end_date(2022, 12, 31)
+        self.set_end_date(2022, 4, 30)
         self.set_cash(100000)
 
-        self.universe_settings.asynchronous = True
+        self.logger = Logger(algorithm=self)
+
+        self.universe_settings.asynchronous = False
         self.universe_settings.extended_market_hours = True
         self.universe_settings.resolution = Resolution.DAILY
         self.universe_settings.data_mapping_mode = DataMappingMode.OPEN_INTEREST
@@ -20,13 +23,11 @@ class RandomContinuousFutureUniverseAlgorithm(QCAlgorithm):
         )
         self.add_universe_selection(
             RandomContinuousFutureUniverseSelectionModel(
-                period=1, sample_size=5, future_symbols=future_symbols()
+                period=3,
+                sample_size=4,
+                future_symbols=future_symbols(),
             )
         )
 
     def on_data(self, data: Slice) -> None:
-        self.debug(f"{self.time}: === On Data ===")
-        self.debug(f"Count: {len(self.active_securities)}")
-        for kvp in self.active_securities:
-            if kvp.key.is_canonical():
-                self.debug(f"Symbol: {kvp.key} Mapped: {kvp.value.mapped}")
+        self.logger.log_if_canonical_changed()

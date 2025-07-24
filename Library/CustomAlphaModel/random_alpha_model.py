@@ -4,27 +4,26 @@ import random
 
 
 class RandomAlphaModel(AlphaModel):
-    def __init__(self, period: int = 5, log_insights=False) -> None:
+    def __init__(self, period: int = 5) -> None:
         self.period = timedelta(days=period)
-        self.log_insights = log_insights
 
     def update(self, algorithm: QCAlgorithm, data: Slice) -> list[Insight]:
         insights = []
 
-        for symbol in data.keys():
-            active_insights = algorithm.insights.get_insights(
-                lambda i: i.symbol == symbol and i.is_active(algorithm.utc_time)
-            )
+        active_symbols = {
+            insight.symbol
+            for insight in algorithm.insights.get_active_insights(algorithm.utc_time)  # type: ignore
+        }
 
-            if active_insights:
+        for symbol in data.keys():
+            if symbol.canonical != symbol:
+                continue
+
+            if symbol in active_symbols:
                 continue
 
             direction = self._select_random_direction()
-            insight = Insight.price(symbol, self.period, direction)
-            insights.append(insight)
-
-        if self.log_insights:
-            self._log_insights(algorithm, insights)
+            insights.append(Insight.price(symbol, self.period, direction))
 
         return insights
 
@@ -35,12 +34,3 @@ class RandomAlphaModel(AlphaModel):
         )[0]
 
         return direction
-
-    def _log_insights(self, algorithm: QCAlgorithm, insights: list[Insight]) -> None:
-        algorithm.debug(f"{algorithm.time}: === Insights ===")
-        for insight in insights:
-            algorithm.debug(
-                f"Symbol: {insight.symbol}, "
-                f"Direction: {insight.direction}, "
-                f"Duration: {insight.period}, "
-            )
